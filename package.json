@@ -1,0 +1,26 @@
+{
+  "name": "mapniktest",
+  "version": "1.0.0",
+  "description": "Mapnik rendering test",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.0.1",
+    "body-parser": "^1.15.2",
+    "compression": "^1.6.2",
+    "crypto": "0.0.3",
+    "dotenv": "^2.0.0",
+    "errorhandler": "^1.4.3",
+    "express": "^4.14.0",
+    "jimp": "^0.2.24",
+    "js-sha256": "^0.3.0",
+    "mapnik": "^3.5.13",
+    "mongoose": "^4.5.7",
+    "path": "^0.12.7",
+    "proj4": "^2.3.14"
+  }
+}

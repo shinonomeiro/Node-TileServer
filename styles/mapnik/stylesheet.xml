@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs" background-color="steelblue">
+    <Style name="transport_styles">
+        <Rule>
+            <PointSymbolizer />
+            <LineSymbolizer />
+            <PolygonSymbolizer fill="white" clip="false"/>
+        </Rule>
+    </Style>
+
+    <Layer name="transport_layer" status="on" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+        <StyleName>transport_styles</StyleName>
+        <Datasource>
+          <Parameter name="type">postgis</Parameter>
+          <Parameter name="host">monster-quest-db.ctagumg013sf.ap-northeast-1.rds.amazonaws.com</Parameter>
+          <Parameter name="port">5432</Parameter>
+          <Parameter name="user">utsemi</Parameter>      
+          <Parameter name="password">kohaku27061988</Parameter>
+          <Parameter name="dbname">mapdb</Parameter>
+          <Parameter name="srid">4326</Parameter>
+          <Parameter name="table">(select geom from tokyo_transport_points where type='station') as t</Parameter>
+          <Parameter name="estimate_extent">false</Parameter>
+        </Datasource>
+    </Layer>
+</Map>

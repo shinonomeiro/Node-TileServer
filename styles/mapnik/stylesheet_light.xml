@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Map>
+    <Style name="water_styles">
+        <Rule>
+        	<LineSymbolizer stroke="black" stroke-width="0.5" smooth="0"/>
+            <PolygonSymbolizer fill="#7997b9" clip="true"/>
+        </Rule>
+    </Style>
+    <Style name="land_styles">
+        <Rule>
+            <LineSymbolizer stroke="black" stroke-width="0.5" smooth="0"/>
+            <PolygonSymbolizer fill="#629f68" clip="true"/>
+        </Rule>
+    </Style>
+    <Style name="road_styles">
+        <Rule>
+            <LineSymbolizer stroke="#FFFFFF" stroke-width="5" smooth="0"/>
+        </Rule>
+    </Style>
+        <Style name="buildings_styles">
+        <Rule>
+            <PolygonSymbolizer fill="black" fill-opacity="0.3" clip="true"/>
+        </Rule>
+    </Style>
+    <Style name="poi_styles">
+        <Rule>
+            <PointSymbolizer />
+        </Rule>
+    </Style>
+</Map>
