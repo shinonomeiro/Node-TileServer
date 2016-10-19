@@ -14,7 +14,7 @@ The server will start listening on port 3000. The rendering of new tiles may tak
 ### Download a sample tile
 
 ```
-http://localhost:3000/location/17/116400/79448.png
+http://localhost:3000/location/17/116400/79448.png (Shibuya Hikarie)
 ```
 
 In the link above, 17 is the zoom level, 116400 is the tile horizontal position from the left and 79448 its vertical position from the bottom on a Web Mercator projection. The total number of tiles in both directions is 1 << 17 or 2^17.
