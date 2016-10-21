@@ -1,14 +1,12 @@
 const async 	= require('async');
-const path 		= require('path');
 const mapnik 	= require('mapnik');
-const jimp 		= require('jimp');
 
-exports.compose = function(imgs, callback) {
+exports.compose = function(layers, callback) {
 
-	var base = imgs[0];
-	imgs = imgs.slice(1, imgs.length);
+	var base = layers[0];
+	layers = layers.slice(1, layers.length);
 
-	var tasks = imgs.map(function(img) {
+	var tasks = layers.map(function(img) {
 		return function(done) {
 			base.composite(img, function(err, res) {
 				if (err) return done(err, null);
@@ -17,7 +15,12 @@ exports.compose = function(imgs, callback) {
 		}
 	});
 
-	async.series(tasks, function(err, res) {
-		return callback(err, base);
+	var promise = new Promise(function(resolve, reject) {
+		async.series(tasks, function(err, res) {
+			if (err) return reject(err);
+			resolve(base);
+		});
 	});
+
+	return promise;
 }

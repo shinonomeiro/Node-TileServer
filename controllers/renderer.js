@@ -69,17 +69,19 @@ exports.renderTile = function(tile, filepath, callback) {
 
 		console.log("Rendering done, composing final image...");
 
-		composer.compose(layers, function(err, finalImg) {
-			if (err) return callback(err);
+		composer.compose(layers)
+			.then(function(res) {
+				res.save(filepath, 'png', function(err) {
+					if (err) return callback(err);
 
-			finalImg.save(filepath, 'png', function(err) {
-				if (err) return callback(err);
+					console.log("Written rendered tile to: " + filepath);
 
-				console.log("Written rendered tile to: " + filepath);
-
-				return callback(null);
+					return callback(null);
+				});
+			})
+			.catch(function(err) {
+				callback(err);
 			});
-		});
 	});
 }
 
