@@ -26,7 +26,7 @@ var proj = '+init=epsg:3857'; // Web Mercator projection
 var bgColor = new mapnik.Color("transparent");
 var bbox;
 
-exports.renderTile = function(tile, filepath, callback) {
+exports.renderTile = function(tile, filepath) {
 
 	bbox = geohelpers.computeTileBbox(tile);
 
@@ -64,25 +64,30 @@ exports.renderTile = function(tile, filepath, callback) {
 		}
 	];
 
-	async.series(layers, function(err, layers) {
-		if (err) return callback(err);
+	var promise = new Promise(function(resolve, reject) {
 
-		console.log("Rendering done, composing final image...");
+		async.series(layers, function(err, layers) {
+			if (err) return reject(err);
 
-		composer.compose(layers)
-			.then(function(res) {
-				res.save(filepath, 'png', function(err) {
-					if (err) return callback(err);
+			console.log("Rendering done, composing final image...");
 
-					console.log("Written rendered tile to: " + filepath);
+			composer.compose(layers)
+				.then(function(res) {
+					res.save(filepath, 'png', function(err) {
+						if (err) return reject(err);
 
-					return callback(null);
+						console.log("Written rendered tile to: " + filepath);
+
+						return resolve();
+					});
+				})
+				.catch(function(err) {
+					reject(err);
 				});
-			})
-			.catch(function(err) {
-				callback(err);
-			});
+		});
 	});
+
+	return promise;
 }
 
 function renderMap(styles, table, done) {

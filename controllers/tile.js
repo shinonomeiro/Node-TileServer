@@ -29,10 +29,13 @@ exports.renderTile = function(req, res, next) {
 		}
 	});
 
-	renderer.renderTile(tile, tile.filepath, function(err) {
-		if (err) return next(err);
-		sendTile(tile.filepath, req, res, next);
-	});
+	renderer.renderTile(tile, tile.filepath)
+		.then(function() {
+			sendTile(tile.filepath, req, res, next);
+		})
+		.catch(function(err) {
+			next(err);
+		});
 }
 
 function TileInfo(params) {
