@@ -3,6 +3,7 @@ const path = require('path');
 const jimp = require('jimp');
 
 exports.compose = function(pathList, callback) {
+	
 	jimp.read(pathList[0], function(err, base) {
 		if (err) return callback(err, base);
 

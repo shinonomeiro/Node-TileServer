@@ -5,49 +5,42 @@ const fs			= require('fs');
 const renderer 		= require('./renderer');
 
 exports.getTile = function(req, res, next) {
-	var tile = {
-		x: parseInt(req.params.tx),
-		y: parseInt(req.params.ty),
-		zoom: parseInt(req.params.zoom)
-	}
+	var tile = new TileInfo(req.params);
 
-	console.log('Attempting to retrieve requested tile from storage...');
+	fs.stat(tile.dirpath, function(err, stats) {
+		if (err) return next(err);
 
-	var dirpath = `tiles/${tile.zoom}/${tile.x}`;
-	var filepath = `${dirpath}/${tile.y}.png`;
+		fs.stat(tile.filepath, function(err, stats) {
+			if (err) return next(err);
 
-	fs.stat(dirpath, function(err, stats) {
-		if (err) {
-			console.log('Directory ' + dirpath + ' does not exist, creating new');
-
-			fs.mkdir(dirpath, function(err) {
-				if (err) return next(err);
-
-				renderTile(tile, filepath, req, res, next);
-			});
-
-			return;
-		}
-
-		fs.stat(filepath, function(err, stats) {
-			if (err) {
-				console.log('Requested tile could not be found');
-				
-				return renderTile(tile, filepath, req, res, next);
-			}
-
-			console.log("Found");
-
-			return sendTile(filepath, req, res, next);
+			return sendTile(tile.filepath, req, res, next);
 		});
 	});
 }
 
-function renderTile(tile, filepath, req, res, next) {
-	renderer.renderTile(tile, filepath, function(err) {
-		if (err) return next(err);
-		sendTile(filepath, req, res, next);
+exports.renderTile = function(req, res, next) {
+	var tile = new TileInfo(req.params);
+
+	fs.stat(tile.dirpath, function(err, stats) {
+		if (err) {
+			fs.mkdir(tile.dirpath, function(err) {
+				if (err) return next(err);
+			});
+		}
 	});
+
+	renderer.renderTile(tile, tile.filepath, function(err) {
+		if (err) return next(err);
+		sendTile(tile.filepath, req, res, next);
+	});
+}
+
+function TileInfo(params) {
+	this.x = parseInt(params.tx), // or < x : + req.params.tx >
+	this.y = parseInt(params.ty),
+	this.zoom = parseInt(params.zoom),
+	this.dirpath = `tiles/${this.zoom}/${this.x}`,
+	this.filepath = `${this.dirpath}/${this.y}.png`
 }
 
 function sendTile(filepath, req, res, next) {

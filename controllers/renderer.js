@@ -5,7 +5,7 @@ const fs 			= require('fs');
 const path 			= require('path');
 
 const geohelpers	= require('./geohelpers');
-const compositor 	= require('./compositor');
+const composer 		= require('./composer');
 
 TILE_SIZE = 256;
 
@@ -32,9 +32,9 @@ exports.renderTile = function(tile, filepath, callback) {
 	console.log('Rendering tile layers with mapnik...');
 	console.log('Bbox: ' + bbox);
 
-	// PARALLEL //
+	// RUN IN ORDER //
 
-	async.parallel([
+	async.series([
 		function(done) {
 			renderMap(
 				bbox,
@@ -70,21 +70,21 @@ exports.renderTile = function(tile, filepath, callback) {
 		}
 	],
 
-	// Once all parallel tasks are done
+	// Once all layers have been rendered, merge them into a single image
 
 	function(err, pathList) {
 		if (err) return callback(err);
 
-		console.log("Rendering done, compositing final image...");
+		console.log("Rendering done, composing final image...");
 
-		compositor.compose(pathList, function(err, img) {
+		composer.compose(pathList, function(err, img) {
 			if (err) return callback(err);
 
-			console.log('Successfully composited image');
+			console.log('Successfully composed image');
 
 			// FIXME //
 
-			console.log("Cleaning up...");
+			console.log("Cleaning up temp files...");
 
     		for (var i = 0; i < pathList.length; i++) {
     			fs.unlink(pathList[i], function(err) {
@@ -112,7 +112,7 @@ function renderMap(bbox, styles, table, filename, done) {
   	var layer = new mapnik.Layer('Layer', proj);
 
   	map.background			= bgColor;
-  	// Needed, since width and height of bbox are not equal because of distortion
+  	// Needed because width and height of bbox are not equal
   	map.aspect_fix_mode 	= mapnik.Map.ASPECT_RESPECT;
   	map.extent 				= bbox;
   	map.bufferSize			= 0;

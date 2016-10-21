@@ -13,8 +13,12 @@ exports.lonLat2Tile = function(lon, lat, zoom) {
 	return { tx: Math.floor(point.tx), ty: Math.floor(point.ty) };
 }
 
+// Tile anchors are located at the bottom-left
+
 exports.tile2AnchorLonLat = function(tile) {
+	// Substract 180 as all longitudes left of Greenwich meridian are negative
 	var a_lon = tile.x / (1 << tile.zoom) * 360 - 180;
+
 	var n = Math.PI - 2 * Math.PI * tile.y / (1 << tile.zoom);
 	// Inversing with -1 because origin is located at bottom-left
 	var a_lat = (-1) * 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));

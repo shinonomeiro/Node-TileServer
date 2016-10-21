@@ -28,7 +28,7 @@ var noCache = function(req, res, next) {
 	next();
 }
 
-// DB
+// DB (not needed for now)
 
 // mongoose.connect(process.env.MONGODB_URI);
 // mongoose.connection.on('error', function() {
@@ -46,7 +46,9 @@ app.get('/', function(req, res) {
 	console.log('Request from %s', req.ip);
 	res.status(200).send('Hello world!');
 });
+
 app.get('/location/:zoom/:tx/:ty', noCache, tileController.getTile);
+app.get('/render/:zoom/:tx/:ty', noCache, tileController.renderTile);
 
 // Errors
 
