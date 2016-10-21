@@ -22,92 +22,68 @@ var postgis_settings = {
   	'estimate_extent'   : '0'
 };
 
-var proj      	= '+init=epsg:3857'; // Web Mercator projection
-var bgColor   	= new mapnik.Color("transparent");
+var proj = '+init=epsg:3857'; // Web Mercator projection
+var bgColor = new mapnik.Color("transparent");
+var bbox;
 
 exports.renderTile = function(tile, filepath, callback) {
-	var bbox = geohelpers.computeTileBbox(tile);
-	var hash = sha256(`x:${tile.x}y:${tile.y}zoom:${tile.zoom}`);
+
+	bbox = geohelpers.computeTileBbox(tile);
 
 	console.log('Rendering tile layers with mapnik...');
+	console.log('Tile: ' + tile.toString());
 	console.log('Bbox: ' + bbox);
 
 	// RUN IN ORDER //
 
-	async.series([
+	var layers = [
 		function(done) {
 			renderMap(
-				bbox,
 			  	['land_styles'],
 			  	'(select geom from tokyo_japan_land_coast) as res',
-			  	hash + '_land.png',
 			  	done);
 		},
 		function(done) {
 			renderMap(
-				bbox,
 			  	['water_styles'],
 			  	'(select geom from tokyo_japan_water_coast \
 			    union select geom from tokyo_japan_osm_waterareas) as res',
-			  	hash + '_water.png',
 			  	done);
 		},
 		function(done) {
 			renderMap(
-				bbox,
 			  	['road_styles'],
 			  	'(select geom from tokyo_japan_osm_roads where class!=\'railway\') as res',
-			  	hash + '_roads.png',
 			  	done);
 		},
 		function(done) {
 			renderMap(
-				bbox,
 			  	['buildings_styles'],
 			  	'(select geom from tokyo_japan_osm_buildings) as res',
-			  	hash + '_buildings.png',
 			  	done);
 		}
-	],
+	];
 
-	// Once all layers have been rendered, merge them into a single image
-
-	function(err, pathList) {
+	async.series(layers, function(err, layers) {
 		if (err) return callback(err);
 
 		console.log("Rendering done, composing final image...");
 
-		composer.compose(pathList, function(err, img) {
+		composer.compose(layers, function(err, finalImg) {
 			if (err) return callback(err);
 
-			console.log('Successfully composed image');
-
-			// FIXME //
-
-			console.log("Cleaning up temp files...");
-
-    		for (var i = 0; i < pathList.length; i++) {
-    			fs.unlink(pathList[i], function(err) {
-    				// TODO
-    			});
-    		}
-
-   			// //
-
-			img.write(filepath, function(err) {
+			finalImg.save(filepath, 'png', function(err) {
 				if (err) return callback(err);
 
 				console.log("Written rendered tile to: " + filepath);
 
-				return callback(err);
+				return callback(null);
 			});
 		});
 	});
-
-	// END OF PARALLEL //
 }
 
-function renderMap(bbox, styles, table, filename, done) {
+function renderMap(styles, table, done) {
   	var map = new mapnik.Map(TILE_SIZE, TILE_SIZE, proj);
   	var layer = new mapnik.Layer('Layer', proj);
 
@@ -122,8 +98,6 @@ function renderMap(bbox, styles, table, filename, done) {
   	layer.datasource = new mapnik.Datasource(postgis_settings);
   	map.add_layer(layer);
 
-  	console.log('Rendering ' + filename);
-
   	map.load('styles/mapnik/stylesheet_light.xml', function(err, map) {
     	if (err) return done(err, null);
 
@@ -132,15 +106,10 @@ function renderMap(bbox, styles, table, filename, done) {
 	    map.render(im, function(err, im) {
       		if (err) return done(err, null);
 
-      		console.log('Done: ' + filename);
-      		var targetPath = path.join('tiles/renders', filename);
+      		im.premultiply(function(err, img) {
+      			if (err) return done(err, null);
 
-      		im.save(targetPath, 'png', function(err) {
-        		if (err) return done(err, null);
-
-        		console.log('Saved layer to raster image ' + targetPath);
-
-        		return done(err, targetPath);
+      			return done(null, im);
       		});
     	});
   	});

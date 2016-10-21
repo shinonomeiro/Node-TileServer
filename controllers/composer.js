@@ -1,27 +1,23 @@
-const async = require('async');
-const path = require('path');
-const jimp = require('jimp');
+const async 	= require('async');
+const path 		= require('path');
+const mapnik 	= require('mapnik');
+const jimp 		= require('jimp');
 
-exports.compose = function(pathList, callback) {
-	
-	jimp.read(pathList[0], function(err, base) {
-		if (err) return callback(err, base);
+exports.compose = function(imgs, callback) {
 
-		pathList.slice(1, pathList.length);
+	var base = imgs[0];
+	imgs = imgs.slice(1, imgs.length);
 
-		var tasks = pathList.map(function(path) {
-			return function(done) {
-				jimp.read(path, function(err, layer) {
-					if (err) return done(err);
+	var tasks = imgs.map(function(img) {
+		return function(done) {
+			base.composite(img, function(err, res) {
+				if (err) return done(err, null);
+				done(null, null);
+			});
+		}
+	});
 
-					base.composite(layer, 0, 0);
-					done(err);
-				});
-			}
-		});
-
-		async.series(tasks, function(err) {
-			return callback(err, base);
-		});
+	async.series(tasks, function(err, res) {
+		return callback(err, base);
 	});
 }

@@ -43,6 +43,10 @@ function TileInfo(params) {
 	this.filepath = `${this.dirpath}/${this.y}.png`
 }
 
+TileInfo.prototype.toString = function() {
+	return `${this.zoom}/${this.x}/${this.y}`;
+}
+
 function sendTile(filepath, req, res, next) {
 	var opt = {
 		root: path.resolve('.'),
