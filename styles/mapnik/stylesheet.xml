@@ -15,7 +15,7 @@
           <Parameter name="host">monster-quest-db.ctagumg013sf.ap-northeast-1.rds.amazonaws.com</Parameter>
           <Parameter name="port">5432</Parameter>
           <Parameter name="user">utsemi</Parameter>      
-          <Parameter name="password">kohaku27061988</Parameter>
+          <Parameter name="password">******</Parameter>
           <Parameter name="dbname">mapdb</Parameter>
           <Parameter name="srid">4326</Parameter>
           <Parameter name="table">(select geom from tokyo_transport_points where type='station') as t</Parameter>
